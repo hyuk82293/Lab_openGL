@@ -1,0 +1,62 @@
+#include <windows.h>
+#include <gl/gl.h>
+#include <gl/glut.h>
+
+float angle = 0.0f;
+
+void initGL() {
+    glClearColor(0.529f, 0.808f, 0.922f, 1.0f); // 배경색을 하늘색으로 설정
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glShadeModel(GL_SMOOTH);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    glTranslatef(0.0f, 0.0f, -5.0f); // 원근 투영을 위해 카메라를 뒤로 이동
+
+    glPushMatrix();
+    glRotatef(angle, 1.0f, 1.0f, 1.0f); // x, y, z 축을 기준으로 주전자를 회전
+    glutWireTeapot(1.0); // 주전자 그리기
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+void reshape(int w, int h) {
+    if (h == 0)
+        h = 1;
+    
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, (GLfloat)w / (GLfloat)h, 0.1f, 100.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+void idle() {
+    angle += 0.5f;
+    if (angle > 360.0f)
+        angle -= 360.0f;
+    
+    glutPostRedisplay();
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Rotating Teapot");
+    initGL();
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutIdleFunc(idle);
+    glutMainLoop();
+    return 0;
+}
